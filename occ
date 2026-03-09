@@ -45,7 +45,6 @@ while [[ "$#" -gt 0 ]]; do
         -h|--help)
             _help
             exit 0
-            shift
             ;;
         install)
             shift
@@ -57,11 +56,10 @@ while [[ "$#" -gt 0 ]]; do
             "${cwd}/update.sh" "$@"
             exit 0
             ;;
-        *|-*|--*)
+        *)
             echo "[ERRO] Unknown option $1"
             _help
             exit 1
-            shift
             ;;
     esac
 done
