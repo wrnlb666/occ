@@ -73,6 +73,10 @@ _install() {
         url="$(get_ssh "${repo}" "$config")"
     fi
 
+    if [[ -e "$target" ]]; then
+        echo "[ERRO] $(pwd)/${target} already exists. "
+        exit 1
+    fi
     echo "[INFO] Cloning ${repo}..."
     err="$(git clone "$url" "$target" 2>&1 1>/dev/null)"
     rc=$?
