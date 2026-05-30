@@ -58,14 +58,56 @@ _list() {
     echo
 }
 
-_update() {
-    local rc
-    local cb
+_show_default_branch_diff() {
     local db
-    local err
-    local after
-    local target
     local before
+    local after
+
+    db="$(_default_branch)"
+    if git show-ref --verify --quiet "refs/remotes/origin/${db}"; then
+        before=$(git rev-parse "origin/${db}")
+    else
+        before=""
+    fi
+    git fetch origin --quiet
+    after=$(git rev-parse "origin/${db}")
+    [[ -n "$before" && "$before" != "$after" ]] && git diff "$before" "$after"
+}
+
+_rebase_tracking_branches() {
+    local rc
+    local err
+    local branch
+
+    for branch in $(git branch --format="%(refname:short)"); do
+        if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+            continue
+        fi
+        if [[ \
+                "$(git rev-parse "${branch}")" == \
+                "$(git rev-parse "origin/${branch}")" \
+            ]]; then
+            continue
+        fi
+        echo "[INFO] Rebasing onto branch ${branch}"
+        git checkout "$branch" > /dev/null 2> /dev/null
+        err="$(git rebase --autostash "origin/${branch}" 2>&1 1>/dev/null)"
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            echo "[ERRO] git failed to rebase onto branch ${branch}:"
+            IFS=$'\n'
+            for line in ${err}; do
+                echo "  $line"
+            done
+            git rebase --abort >/dev/null
+            return 1
+        fi
+    done
+}
+
+_update() {
+    local cb
+    local target
     local repo="$1"
     target="$(get_target "${repo}" "$config" 2>/dev/null)"
     if [[ -z "${target}" ]]; then
@@ -77,33 +119,11 @@ _update() {
     cwd="$(pwd)"
     builtin cd "$target" || return 1
     cb="$(git branch --show-current)"
-    db="$(_default_branch)"
-    before=$(git rev-parse "origin/${db}")
-    git fetch origin --quiet
-    after=$(git rev-parse "origin/${db}")
-    [[ "$before" != "$after" ]] && git diff "$before" "$after"
-    for branch in $(git branch --format="%(refname:short)"); do
-        if [[ \
-                "$(git rev-parse "${branch}")" == \
-                "$(git rev-parse "origin/${branch}")" \
-            ]]; then
-            continue
-        fi
-        echo "[INFO] Rebasing onto branch ${branch}"
-        git checkout "$branch" > /dev/null 2> /dev/null
-        err="$(git rebase --autostash "origin/${branch}" 2>&1 1>/dev/null)"
-        rc=$?
-        if [[ $rc -ne 0 ]]; then
-            echo "[ERRO] git failed to rebase onto branch ${branch}:"
-            IFS=$'\n'
-            for line in ${err}; do
-                echo "  $line"
-            done
-            git rebase --abort >/dev/null
-            builtin cd "$dir" || return 1
-            return 1
-        fi
-    done
+    _show_default_branch_diff
+    if ! _rebase_tracking_branches; then
+        builtin cd "$dir" || return 1
+        return 1
+    fi
     git checkout "$cb" > /dev/null 2> /dev/null
     if [[ -f "update.sh" ]]; then
         echo "[INFO] Executing update.sh for ${repo}"
@@ -113,43 +133,16 @@ _update() {
 }
 
 _update_occ() {
-    local rc
     local cb
-    local db
-    local err
-    local after
-    local before
 
     echo "[INFO] Fetching occ from remote"
     builtin cd "${cwd}" || return 1
     cb="$(git branch --show-current)"
-    db="$(_default_branch)"
-    before=$(git rev-parse "origin/${db}")
-    git fetch origin --quiet
-    after=$(git rev-parse "origin/${db}")
-    [[ "$before" != "$after" ]] && git diff "$before" "$after"
-    for branch in $(git branch --format="%(refname:short)"); do
-        if [[ \
-                "$(git rev-parse "${branch}")" == \
-                "$(git rev-parse "origin/${branch}")" \
-            ]]; then
-            continue
-        fi
-        echo "[INFO] Rebasing onto branch ${branch}"
-        git checkout "$branch" > /dev/null 2> /dev/null
-        err="$(git rebase --autostash "origin/${branch}" 2>&1 1>/dev/null)"
-        rc=$?
-        if [[ $rc -ne 0 ]]; then
-            echo "[ERRO] git failed to rebase onto branch ${branch}:"
-            IFS=$'\n'
-            for line in ${err}; do
-                echo "  $line"
-            done
-            git rebase --abort >/dev/null
-            builtin cd "$dir" || return 1
-            exit 1
-        fi
-    done
+    _show_default_branch_diff
+    if ! _rebase_tracking_branches; then
+        builtin cd "$dir" || return 1
+        exit 1
+    fi
     git checkout "$cb" > /dev/null 2> /dev/null
     builtin cd "$dir" || return 1
 }
@@ -186,6 +179,11 @@ while [[ "$#" -gt 0 ]]; do
             exit 0
             ;;
         -d|--dir)
+            if [[ -z "$2" || "$2" == -* ]]; then
+                echo "[ERRO] Missing directory after $1"
+                _help
+                exit 1
+            fi
             dir="$2"
             shift
             shift

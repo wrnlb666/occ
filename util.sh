@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Try installing jq if not exists
 _install_jq_binary() {
     local err="[ERRO] please install jq manually"

@@ -127,6 +127,11 @@ while [[ "$#" -gt 0 ]]; do
             exit 0
             ;;
         -d|--dir)
+            if [[ -z "$2" || "$2" == -* ]]; then
+                echo "[ERRO] Missing directory after $1"
+                _help
+                exit 1
+            fi
             dir="$2"
             shift
             shift
