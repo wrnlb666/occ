@@ -34,6 +34,11 @@
     "http": "https://github.com/wrnlb666/gitconfig.git",
     "target": "gitconfig"
   },
+  "micro": {
+    "ssh": "git@github.com:wrnlb666/micro.conf.git",
+    "http": "https://github.com/wrnlb666/micro.conf.git",
+    "target": "micro.conf"
+  },
   "tssh": {
     "ssh": "git@github.com:wrnlb666/tssh.conf.git",
     "http": "https://github.com/wrnlb666/tssh.conf.git",
