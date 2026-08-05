@@ -71,7 +71,7 @@ _show_default_branch_diff() {
     fi
     git fetch origin --quiet
     after=$(git rev-parse "origin/${db}")
-    [[ -n "$before" && "$before" != "$after" ]] && git diff "$before" "$after"
+    [[ -n "$before" && "$before" != "$after" ]] && git --no-pager diff "$before" "$after"
 }
 
 _rebase_tracking_branches() {
