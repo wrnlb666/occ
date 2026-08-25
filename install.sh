@@ -62,7 +62,7 @@ _install() {
     local repo="$1"
     target="$(get_target "${repo}" "$config" 2>/dev/null)"
     if [[ -z "${target}" ]]; then
-        echo "[ERRO] ${repo} does not exist"
+        echo "[ERROR] ${repo} does not exist"
         return 1
     fi
 
@@ -74,14 +74,14 @@ _install() {
     fi
 
     if [[ -e "$target" ]]; then
-        echo "[ERRO] $(pwd)/${target} already exists. "
+        echo "[ERROR] $(pwd)/${target} already exists. "
         exit 1
     fi
     echo "[INFO] Cloning ${repo}..."
     err="$(git clone "$url" "$target" 2>&1 1>/dev/null)"
     rc=$?
     if [[ $rc -ne 0 ]]; then
-        echo "[ERRO] git faled to clone ${repo}:"
+        echo "[ERROR] git faled to clone ${repo}:"
         IFS=$'\n'
         for line in ${err}; do
             echo "  $line"
@@ -128,7 +128,7 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         -d|--dir)
             if [[ -z "$2" || "$2" == -* ]]; then
-                echo "[ERRO] Missing directory after $1"
+                echo "[ERROR] Missing directory after $1"
                 _help
                 exit 1
             fi
@@ -150,7 +150,7 @@ while [[ "$#" -gt 0 ]]; do
             shift
             ;;
         -*)
-            echo "[ERRO] Unknown option $1"
+            echo "[ERROR] Unknown option $1"
             _help
             exit 1
             ;;

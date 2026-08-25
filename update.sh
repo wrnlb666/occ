@@ -94,7 +94,7 @@ _rebase_tracking_branches() {
         err="$(git rebase --autostash "origin/${branch}" 2>&1 1>/dev/null)"
         rc=$?
         if [[ $rc -ne 0 ]]; then
-            echo "[ERRO] git failed to rebase onto branch ${branch}:"
+            echo "[ERROR] git failed to rebase onto branch ${branch}:"
             IFS=$'\n'
             for line in ${err}; do
                 echo "  $line"
@@ -111,7 +111,7 @@ _update() {
     local repo="$1"
     target="$(get_target "${repo}" "$config" 2>/dev/null)"
     if [[ -z "${target}" ]]; then
-        echo "[ERRO] ${repo} does not exist"
+        echo "[ERROR] ${repo} does not exist"
         return 1
     fi
 
@@ -180,7 +180,7 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         -d|--dir)
             if [[ -z "$2" || "$2" == -* ]]; then
-                echo "[ERRO] Missing directory after $1"
+                echo "[ERROR] Missing directory after $1"
                 _help
                 exit 1
             fi
@@ -198,7 +198,7 @@ while [[ "$#" -gt 0 ]]; do
             shift
             ;;
         -*)
-            echo "[ERRO] Unknown option $1"
+            echo "[ERROR] Unknown option $1"
             _help
             exit 1
             ;;
