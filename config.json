@@ -44,6 +44,11 @@
     "http": "https://github.com/wrnlb666/tssh.conf.git",
     "target": "tssh.conf"
   },
+  "gomi": {
+    "ssh": "git@github.com:wrnlb666/gomi.conf.git",
+    "http": "https://github.com/wrnlb666/gomi.conf.git",
+    "target": "gomi.conf"
+  },
   "gdb": {
     "ssh": "git@github.com:wrnlb666/gdbinit.git",
     "http": "https://github.com/wrnlb666/gdbinit.git",
