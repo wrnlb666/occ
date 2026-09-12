@@ -2,7 +2,7 @@
 
 # Try installing jq if not exists
 _install_jq_binary() {
-    local err="[ERRO] please install jq manually"
+    local err="[ERROR] please install jq manually"
     local required=("uname" "curl")
     for r in "${required[@]}"; do
         if [[ ! -x "$(command -v "$r")" ]]; then
@@ -90,7 +90,7 @@ _default_branch() {
         echo "master"; return 0
     fi
 
-    echo "[ERRO] Could not determine default branch locally." >&2
+    echo "[ERROR] Could not determine default branch locally." >&2
     exit 1
 }
 
