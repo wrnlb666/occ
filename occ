@@ -8,7 +8,7 @@ swd() {
     # Resolve symlinks recursively
     while [ -L "$SOURCE_PATH" ]; do
         # Get symlink directory
-        SYMLINK_DIR="$( cd -P "$( dirname "$SOURCE_PATH" )" >/dev/null 2>&1 && pwd )"
+        SYMLINK_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" >/dev/null 2>&1 && pwd)"
         # Resolve symlink target (relative or absolute)
         SOURCE_PATH="$(readlink "$SOURCE_PATH")"
         # Check if candidate path is relative or absolute
@@ -18,17 +18,17 @@ swd() {
         fi
     done
     # Get final script directory path from fully resolved source path
-    SCRIPT_DIR="$(cd -P "$( dirname "$SOURCE_PATH" )" >/dev/null 2>&1 && pwd)"
+    SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" >/dev/null 2>&1 && pwd)"
     echo "$SCRIPT_DIR"
 }
 
-cwd="$(swd)"    # config working directory
+cwd="$(swd)" # config working directory
 source "${cwd}/util.sh"
 
 # helper function
 _help() {
     echo "Usage: "
-    echo "  ${0} [OPTION] <install|update>..."
+    echo "  ${0} [OPTION] <install|update|depends>..."
     echo "  With no OPTION or CONFIG specified defaults to -h."
     echo ""
     echo "Options:"
@@ -42,24 +42,29 @@ fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -h|--help)
-            _help
-            exit 0
-            ;;
-        install)
-            shift
-            "${cwd}/install.sh" "$@"
-            exit 0
-            ;;
-        update)
-            shift
-            "${cwd}/update.sh" "$@"
-            exit 0
-            ;;
-        *)
-            echo "[ERRO] Unknown option $1"
-            _help
-            exit 1
-            ;;
+    -h | --help)
+        _help
+        exit 0
+        ;;
+    install)
+        shift
+        "${cwd}/install.sh" "$@"
+        exit 0
+        ;;
+    update)
+        shift
+        "${cwd}/update.sh" "$@"
+        exit 0
+        ;;
+    depends)
+        shift
+        "${cwd}/depends.sh" "$@"
+        exit 0
+        ;;
+    *)
+        echo "[ERRO] Unknown option $1"
+        _help
+        exit 1
+        ;;
     esac
 done
