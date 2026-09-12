@@ -41,8 +41,8 @@ _help() {
     echo ""
     echo "Options:"
     echo "  -h, --help, help        Print this help menu"
-    echo "  -l, --list, ls, list    List current available configs"
-    echo "  -a, --all, all          Install all available configs"
+    echo "  -l, --list, ls, list    List current installed configs"
+    echo "  -a, --all, all          Update all available configs"
     echo "  -d, --dir               Config dir, defaults to ${dir}"
 }
 
