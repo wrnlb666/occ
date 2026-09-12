@@ -29,7 +29,6 @@ source "${cwd}/util.sh"
 dir="$(cd -P "${cwd}/.." >/dev/null 2>&1 && pwd)"
 config="${cwd}/config.json"
 depends_all=false
-depends_occ=false
 declare -A all_deps=()
 mapfile -t keys < <(jq -r 'keys[]' "$config")
 
@@ -69,18 +68,6 @@ _depends() {
 
     cwd="$(pwd)"
     builtin cd "$target" || return 1
-    if [[ -f "depends.sh" ]]; then
-        unset depends
-        source depends.sh
-        for dep in "${depends[@]}"; do
-            all_deps["$dep"]=1
-        done
-    fi
-    builtin cd "$dir" || return 1
-}
-
-_depends_occ() {
-    builtin cd "${cwd}" || return 1
     if [[ -f "depends.sh" ]]; then
         unset depends
         source depends.sh
@@ -133,11 +120,6 @@ while [[ "$#" -gt 0 ]]; do
         ;;
     -a | --all | all)
         depends_all=true
-        depends_occ=true
-        shift
-        ;;
-    occ)
-        depends_occ=true
         shift
         ;;
     -*)
@@ -151,9 +133,6 @@ while [[ "$#" -gt 0 ]]; do
         ;;
     esac
 done
-
-# depends occ
-"$depends_occ" && _depends_occ
 
 # cd into target directory
 [[ -d "${dir}" ]] || mkdir -p "${dir}"
