@@ -8,7 +8,7 @@ swd() {
     # Resolve symlinks recursively
     while [ -L "$SOURCE_PATH" ]; do
         # Get symlink directory
-        SYMLINK_DIR="$( cd -P "$( dirname "$SOURCE_PATH" )" >/dev/null 2>&1 && pwd )"
+        SYMLINK_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" >/dev/null 2>&1 && pwd)"
         # Resolve symlink target (relative or absolute)
         SOURCE_PATH="$(readlink "$SOURCE_PATH")"
         # Check if candidate path is relative or absolute
@@ -18,11 +18,11 @@ swd() {
         fi
     done
     # Get final script directory path from fully resolved source path
-    SCRIPT_DIR="$(cd -P "$( dirname "$SOURCE_PATH" )" >/dev/null 2>&1 && pwd)"
+    SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" >/dev/null 2>&1 && pwd)"
     echo "$SCRIPT_DIR"
 }
 
-cwd="$(swd)"    # config working directory
+cwd="$(swd)" # config working directory
 source "${cwd}/util.sh"
 
 # Global Variables
@@ -31,7 +31,6 @@ config="${cwd}/config.json"
 update_all=false
 update_occ=false
 mapfile -t keys < <(jq -r 'keys[]' "$config")
-
 
 # Helper function
 _help() {
@@ -50,7 +49,7 @@ _list() {
     local target
     printf "Available Configs:\n  "
     for key in "${keys[@]}"; do
-        target="$(get_target "$key" "$config")" 
+        target="$(get_target "$key" "$config")"
         if [[ -d "${dir}/${target}" ]]; then
             printf "%s " "${key}"
         fi
@@ -83,14 +82,13 @@ _rebase_tracking_branches() {
         if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
             continue
         fi
-        if [[ \
-                "$(git rev-parse "${branch}")" == \
-                "$(git rev-parse "origin/${branch}")" \
-            ]]; then
+        if [[ 
+            "$(git rev-parse "${branch}")" == "$(git rev-parse "origin/${branch}")" ]] \
+            ; then
             continue
         fi
         echo "[INFO] Rebasing onto branch ${branch}"
-        git checkout "$branch" > /dev/null 2> /dev/null
+        git checkout "$branch" >/dev/null 2>/dev/null
         err="$(git rebase --autostash "origin/${branch}" 2>&1 1>/dev/null)"
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -124,7 +122,7 @@ _update() {
         builtin cd "$dir" || return 1
         return 1
     fi
-    git checkout "$cb" > /dev/null 2> /dev/null
+    git checkout "$cb" >/dev/null 2>/dev/null
     if [[ -f "update.sh" ]]; then
         echo "[INFO] Executing update.sh for ${repo}"
         ./update.sh
@@ -143,7 +141,7 @@ _update_occ() {
         builtin cd "$dir" || return 1
         exit 1
     fi
-    git checkout "$cb" > /dev/null 2> /dev/null
+    git checkout "$cb" >/dev/null 2>/dev/null
     builtin cd "$dir" || return 1
 }
 
@@ -158,7 +156,6 @@ _update_all() {
     done
 }
 
-
 # Main Function
 _install_jq
 
@@ -170,42 +167,42 @@ fi
 declare -a repos
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -h|--help|help)
-            _help
-            exit 0
-            ;;
-        -l|--list|ls|list)
-            _list
-            exit 0
-            ;;
-        -d|--dir)
-            if [[ -z "$2" || "$2" == -* ]]; then
-                echo "[ERROR] Missing directory after $1"
-                _help
-                exit 1
-            fi
-            dir="$2"
-            shift
-            shift
-            ;;
-        -a|--all|all)
-            update_all=true
-            update_occ=true
-            shift
-            ;;
-        occ)
-            update_occ=true
-            shift
-            ;;
-        -*)
-            echo "[ERROR] Unknown option $1"
+    -h | --help | help)
+        _help
+        exit 0
+        ;;
+    -l | --list | ls | list)
+        _list
+        exit 0
+        ;;
+    -d | --dir)
+        if [[ -z "$2" || "$2" == -* ]]; then
+            echo "[ERROR] Missing directory after $1"
             _help
             exit 1
-            ;;
-        *)
-            repos+=("$1")
-            shift
-            ;;
+        fi
+        dir="$2"
+        shift
+        shift
+        ;;
+    -a | --all | all)
+        update_all=true
+        update_occ=true
+        shift
+        ;;
+    occ)
+        update_occ=true
+        shift
+        ;;
+    -*)
+        echo "[ERROR] Unknown option $1"
+        _help
+        exit 1
+        ;;
+    *)
+        repos+=("$1")
+        shift
+        ;;
     esac
 done
 
@@ -216,13 +213,12 @@ done
 [[ -d "${dir}" ]] || mkdir -p "${dir}"
 builtin cd "${dir}" || exit 1
 
-# update all
 if ${update_all}; then
+    # update all
     _update_all
-    exit 0
+else
+    # update selected
+    for key in "${repos[@]}"; do
+        _update "$key"
+    done
 fi
-
-# update selected
-for key in "${repos[@]}"; do
-    _update "$key"
-done

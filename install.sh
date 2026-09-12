@@ -8,7 +8,7 @@ swd() {
     # Resolve symlinks recursively
     while [ -L "$SOURCE_PATH" ]; do
         # Get symlink directory
-        SYMLINK_DIR="$( cd -P "$( dirname "$SOURCE_PATH" )" >/dev/null 2>&1 && pwd )"
+        SYMLINK_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" >/dev/null 2>&1 && pwd)"
         # Resolve symlink target (relative or absolute)
         SOURCE_PATH="$(readlink "$SOURCE_PATH")"
         # Check if candidate path is relative or absolute
@@ -18,11 +18,11 @@ swd() {
         fi
     done
     # Get final script directory path from fully resolved source path
-    SCRIPT_DIR="$(cd -P "$( dirname "$SOURCE_PATH" )" >/dev/null 2>&1 && pwd)"
+    SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" >/dev/null 2>&1 && pwd)"
     echo "$SCRIPT_DIR"
 }
 
-cwd="$(swd)"    # config working directory
+cwd="$(swd)" # config working directory
 source "${cwd}/util.sh"
 
 # Global Variables
@@ -106,7 +106,6 @@ _install_all() {
     done
 }
 
-
 # Main Function
 _install_jq
 
@@ -118,46 +117,46 @@ fi
 declare -a repos
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -h|--help|help)
-            _help
-            exit 0
-            ;;
-        -l|--list|ls|list)
-            _list
-            exit 0
-            ;;
-        -d|--dir)
-            if [[ -z "$2" || "$2" == -* ]]; then
-                echo "[ERROR] Missing directory after $1"
-                _help
-                exit 1
-            fi
-            dir="$2"
-            shift
-            shift
-            ;;
-        occ)
-            install_occ=true
-            shift
-            ;;
-        --http|--https)
-            use_http=true
-            shift
-            ;;
-        -a|--all|all)
-            install_all=true
-            install_occ=true
-            shift
-            ;;
-        -*)
-            echo "[ERROR] Unknown option $1"
+    -h | --help | help)
+        _help
+        exit 0
+        ;;
+    -l | --list | ls | list)
+        _list
+        exit 0
+        ;;
+    -d | --dir)
+        if [[ -z "$2" || "$2" == -* ]]; then
+            echo "[ERROR] Missing directory after $1"
             _help
             exit 1
-            ;;
-        *)
-            repos+=("$1")
-            shift
-            ;;
+        fi
+        dir="$2"
+        shift
+        shift
+        ;;
+    occ)
+        install_occ=true
+        shift
+        ;;
+    --http | --https)
+        use_http=true
+        shift
+        ;;
+    -a | --all | all)
+        install_all=true
+        install_occ=true
+        shift
+        ;;
+    -*)
+        echo "[ERROR] Unknown option $1"
+        _help
+        exit 1
+        ;;
+    *)
+        repos+=("$1")
+        shift
+        ;;
     esac
 done
 
@@ -169,10 +168,11 @@ done
 builtin cd "${dir}" || return 1
 
 if ${install_all}; then
+    # install all
     _install_all
-    exit 0
+else
+    # install selected
+    for key in "${repos[@]}"; do
+        _install "$key"
+    done
 fi
-
-for key in "${repos[@]}"; do
-    _install "$key"
-done
