@@ -65,6 +65,9 @@ _install_jq() {
         if [[ -x "$(command -v apt)" ]]; then
             sudo apt install -y jq && return
         fi
+        if [[ -x "$(command -v mise)" ]]; then
+            mise use -g jq
+        fi
         if [[ -x "$(command -v brew)" ]]; then
             brew install jq && return
         fi
