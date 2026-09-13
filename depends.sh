@@ -29,6 +29,7 @@ source "${cwd}/util.sh"
 dir="$(cd -P "${cwd}/.." >/dev/null 2>&1 && pwd)"
 config="${cwd}/config.json"
 depends_all=false
+only_needed=false
 declare -A all_deps=()
 mapfile -t keys < <(jq -r 'keys[]' "$config")
 
@@ -42,6 +43,7 @@ _help() {
     echo "  -h, --help, help        Print this help menu"
     echo "  -l, --list, ls, list    List current installed configs"
     echo "  -a, --all, all          Show all required depends"
+    echo "  -n, --needed            Show not yet installed depends"
     echo "  -d, --dir               Config dir, defaults to ${dir}"
 }
 
@@ -72,7 +74,11 @@ _depends() {
         unset depends
         source depends.sh
         for dep in "${depends[@]}"; do
-            all_deps["$dep"]=1
+            if ! ${only_needed}; then
+                all_deps["$dep"]=1
+            elif ! [[ -x "$(command -v "$dep")" ]]; then
+                all_deps["$dep"]=1
+            fi
         done
     fi
     builtin cd "$dir" || return 1
@@ -120,6 +126,10 @@ while [[ "$#" -gt 0 ]]; do
         ;;
     -a | --all | all)
         depends_all=true
+        shift
+        ;;
+    -n | --needed)
+        only_needed=true
         shift
         ;;
     -*)
