@@ -34,6 +34,11 @@
     "http": "https://github.com/wrnlb666/gitconfig.git",
     "target": "gitconfig"
   },
+  "lazygit": {
+    "ssh": "git@github.com:wrnlb666/lazygit.conf.git",
+    "http": "https://github.com/wrnlb666/lazygit.conf.git",
+    "target": "lazygit.conf"
+  },
   "micro": {
     "ssh": "git@github.com:wrnlb666/micro.conf.git",
     "http": "https://github.com/wrnlb666/micro.conf.git",
