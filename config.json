@@ -39,7 +39,7 @@
     "http": "https://github.com/wrnlb666/lazygit.conf.git",
     "target": "lazygit.conf"
   },
-  "television": {
+  "tv": {
     "ssh": "git@github.com:wrnlb666/television.conf.git",
     "http": "https://github.com/wrnlb666/television.conf.git",
     "target": "tv.conf"
