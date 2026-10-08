@@ -42,7 +42,7 @@
   "television": {
     "ssh": "git@github.com:wrnlb666/television.conf.git",
     "http": "https://github.com/wrnlb666/television.conf.git",
-    "target": "television.conf"
+    "target": "tv.conf"
   },
   "micro": {
     "ssh": "git@github.com:wrnlb666/micro.conf.git",
